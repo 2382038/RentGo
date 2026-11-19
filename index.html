@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>RentGo — Rental motor jadi mudah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --surface: #fff;
+      --surface-soft: #f0f4f8;
+      --text: #17212f;
+      --muted: #788493;
+      --line: #e7ebf0;
+      --primary: #087e72;
+      --primary-dark: #06665d;
+      --primary-soft: #e7f6f3;
+      --green: #15966a;
+      --red: #d8515d;
+      --shadow: 0 12px 35px rgba(27, 44, 60, .08);
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #111820;
+      --surface: #1a2530;
+      --surface-soft: #222f3b;
+      --text: #edf3f7;
+      --muted: #9eacb8;
+      --line: #2b3945;
+      --primary: #43b9a7;
+      --primary-dark: #32a392;
+      --primary-soft: #1e3938;
+      --green: #55c497;
+      --red: #f07880;
+      --shadow: 0 12px 35px rgba(0, 0, 0, .22);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .auth-screen { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, .85fr); }
+    .auth-art { background: linear-gradient(145deg, #07675f, #109781); color: white; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; }
+    .auth-art:after { content: ""; width: 430px; height: 430px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; position: absolute; right: -120px; bottom: -155px; box-shadow: 0 0 0 45px rgba(255,255,255,.05), 0 0 0 95px rgba(255,255,255,.04); }
+    .art-copy { max-width: 470px; margin: auto 0; position: relative; z-index: 1; }
+    .art-copy h1 { font-size: clamp(36px, 5vw, 58px); letter-spacing: -2px; line-height: 1.12; margin: 0 0 18px; }
+    .art-copy p { color: rgba(255,255,255,.8); font-size: 16px; line-height: 1.8; }
+    .auth-box { width: min(440px, calc(100% - 40px)); margin: auto; padding: 45px 0; }
+    .brand { display: inline-flex; gap: 10px; align-items: center; font-weight: 800; font-size: 22px; letter-spacing: -.7px; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; background: var(--primary); color: white; border-radius: 12px; }
+    .auth-box h2 { margin: 38px 0 8px; font-size: 28px; letter-spacing: -1px; }
+    .auth-box > p { margin: 0 0 26px; }
+    .form-field { display: grid; gap: 8px; margin: 15px 0; }
+    .form-field label { font-size: 12px; font-weight: 700; }
+    .form-field input, .form-field select, .form-field textarea, .search-input {
+      width: 100%; padding: 13px 14px; color: var(--text); background: var(--surface);
+      border: 1px solid var(--line); border-radius: 11px; outline: none;
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+    .btn { border: 0; border-radius: 11px; padding: 12px 16px; font-weight: 700; transition: .18s ease; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-soft { color: var(--primary); background: var(--primary-soft); }
+    .btn-plain { color: var(--text); background: var(--surface-soft); }
+    .btn-danger { color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+    .btn-block { width: 100%; margin-top: 8px; }
+    .text-button { padding: 0; border: 0; color: var(--primary); font-weight: 700; background: none; }
+    .auth-switch { text-align: center; margin-top: 22px !important; }
+    .auth-footer { text-align: center; margin-top: 30px; color: var(--muted); font-size: 12px; }
+    .app-shell { min-height: 100vh; }
+    .topbar { position: sticky; z-index: 10; top: 0; height: 76px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; align-items: center; }
+    .topbar-inner { width: min(1180px, calc(100% - 40px)); margin: auto; display: flex; align-items: center; justify-content: space-between; }
+    .top-actions, .profile-chip, .welcome-row, .section-heading, .card-top, .inline-actions { display: flex; align-items: center; }
+    .top-actions { gap: 12px; }
+    .profile-chip { gap: 10px; }
+    .avatar { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; display: grid; place-items: center; color: var(--primary); background: var(--primary-soft); font-weight: 800; }
+    .icon-button { border: 0; border-radius: 10px; width: 40px; height: 40px; color: var(--text); background: var(--surface-soft); }
+    .page-wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 70px; }
+    .welcome-row { justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    .welcome-row h1 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -1px; }
+    .welcome-row p { margin: 0; color: var(--muted); }
+    .desktop-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--line); margin-bottom: 25px; }
+    .nav-button { border: 0; background: transparent; padding: 13px 16px; color: var(--muted); font-weight: 700; border-bottom: 2px solid transparent; }
+    .nav-button.active { color: var(--primary); border-color: var(--primary); }
+    .mobile-nav { display: none; }
+    .section-heading { justify-content: space-between; gap: 16px; margin: 24px 0 18px; }
+    .section-heading h2 { font-size: 20px; letter-spacing: -.5px; margin: 0; }
+    .motor-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .motor-card, .panel, .stat-card, .history-card, .chat-row { background: var(--surface); border: 1px solid var(--line); border-radius: 17px; box-shadow: var(--shadow); }
+    .motor-card { overflow: hidden; }
+    .motor-image { width: 100%; height: 195px; object-fit: cover; background: var(--surface-soft); display: block; }
+    .motor-content { padding: 17px; }
+    .card-top { justify-content: space-between; gap: 10px; }
+    .motor-content h3 { margin: 0 0 7px; font-size: 17px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 20px; padding: 6px 9px; font-weight: 700; font-size: 11px; white-space: nowrap; }
+    .badge.green { color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); }
+    .badge.red { color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+    .badge.neutral { color: var(--muted); background: var(--surface-soft); }
+    .motor-price { margin: 17px 0; font-size: 19px; font-weight: 800; }
+    .motor-price span { color: var(--muted); font-size: 12px; font-weight: 500; }
+    .motor-actions { display: flex; gap: 8px; }
+    .motor-actions .btn { flex: 1; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .stat-card { padding: 19px; }
+    .stat-icon { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 12px; color: var(--primary); background: var(--primary-soft); margin-bottom: 17px; }
+    .stat-value { display: block; font-size: 23px; font-weight: 800; margin: 6px 0; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .panel { padding: 20px; }
+    .panel h3 { margin: 0 0 15px; }
+    .rental-list, .chat-list, .history-list { display: grid; gap: 12px; }
+    .rental-row { display: grid; grid-template-columns: 58px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .rental-row:last-child { border-bottom: 0; }
+    .rental-row img { width: 58px; height: 48px; object-fit: cover; border-radius: 10px; }
+    .rental-row h4 { margin: 0 0 5px; }
+    .rental-row p { margin: 0; color: var(--muted); font-size: 12px; }
+    .rental-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .timer { color: var(--primary); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .wallet-card { color: white; background: linear-gradient(135deg, #087e72, #15a68e); border: 0; padding: 26px; }
+    .wallet-card .muted { color: rgba(255,255,255,.75); }
+    .wallet-balance { font-size: 34px; font-weight: 800; margin: 9px 0 20px; }
+    .bank-info { margin: 18px 0; padding: 16px; background: var(--surface-soft); border-radius: 13px; }
+    .history-card { display: grid; grid-template-columns: 70px 1fr auto; gap: 15px; align-items: center; padding: 15px; }
+    .history-card img { width: 70px; height: 64px; border-radius: 10px; object-fit: cover; }
+    .history-card h3 { font-size: 14px; margin: 0 0 6px; }
+    .history-card p { color: var(--muted); font-size: 12px; margin: 0; }
+    .chat-row { width: 100%; color: var(--text); text-align: left; padding: 15px; display: flex; align-items: center; gap: 12px; }
+    .chat-row:hover { border-color: var(--primary); }
+    .chat-row-copy { flex: 1; min-width: 0; }
+    .chat-row-copy strong { display: block; margin-bottom: 4px; }
+    .chat-row-copy span { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .empty-state { text-align: center; padding: 45px 20px; background: var(--surface); border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); }
+    .empty-state i { color: var(--primary); font-size: 26px; margin-bottom: 10px; }
+    .search-input { max-width: 260px; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 18px; background: rgba(13, 25, 35, .58); }
+    .modal { width: min(520px, 100%); max-height: min(88vh, 850px); overflow: auto; background: var(--surface); border-radius: 18px; padding: 22px; box-shadow: 0 22px 80px rgba(0,0,0,.24); }
+    .modal-wide { width: min(650px, 100%); }
+    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+    .modal-header h2 { margin: 0 0 5px; font-size: 20px; }
+    .modal-close { border: 0; background: var(--surface-soft); color: var(--text); width: 35px; height: 35px; border-radius: 10px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 9px; margin-top: 18px; }
+    .modal-motor-img { width: 100%; height: 220px; object-fit: cover; border-radius: 13px; margin-bottom: 15px; }
+    .price-summary { display: flex; justify-content: space-between; padding: 14px 0; border-top: 1px solid var(--line); margin-top: 13px; font-weight: 800; }
+    .qr-box { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 13px; width: 200px; margin: 12px auto; }
+    .qr-box img { display: block; width: 100%; height: auto; }
+    .center { text-align: center; }
+    .chat-messages { display: flex; flex-direction: column; gap: 10px; max-height: 48vh; overflow-y: auto; padding: 6px 2px 15px; }
+    .message { max-width: 82%; padding: 10px 12px; border-radius: 13px; background: var(--surface-soft); align-self: flex-start; overflow-wrap: anywhere; }
+    .message.mine { align-self: flex-end; background: var(--primary-soft); }
+    .message img { display: block; max-width: 210px; max-height: 190px; object-fit: cover; border-radius: 9px; margin-top: 7px; }
+    .message time { display: block; font-size: 10px; color: var(--muted); margin-top: 5px; }
+    .chat-compose { border-top: 1px solid var(--line); padding-top: 12px; display: flex; align-items: center; gap: 8px; }
+    .chat-compose input[type="text"] { flex: 1; min-width: 0; padding: 11px; color: var(--text); background: var(--surface-soft); border: 0; border-radius: 10px; }
+    .upload-button { width: 38px; height: 38px; display: grid; place-items: center; color: var(--primary); background: var(--primary-soft); border-radius: 10px; cursor: pointer; }
+    .toast { position: fixed; z-index: 50; right: 20px; bottom: 20px; max-width: min(400px, calc(100% - 40px)); padding: 13px 17px; border-radius: 12px; background: #17212f; color: white; box-shadow: var(--shadow); }
+    .notification-panel { position: fixed; z-index: 20; right: max(20px, calc((100vw - 1180px) / 2)); top: 68px; width: min(340px, calc(100% - 30px)); padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); }
+    @media (max-width: 850px) {
+      .auth-screen { grid-template-columns: 1fr; }
+      .auth-art { display: none; }
+      .motor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 13px; }
+      .topbar { height: 64px; }
+      .topbar-inner, .page-wrap { width: calc(100% - 28px); }
+      .profile-label { display: none; }
+      .page-wrap { padding: 25px 0 100px; }
+      .desktop-nav { display: none; }
+      .mobile-nav { position: fixed; z-index: 15; display: flex; justify-content: space-around; bottom: 0; left: 0; right: 0; padding: 8px 5px calc(8px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
+      .mobile-nav .nav-button { padding: 5px 7px; display: grid; justify-items: center; gap: 4px; font-size: 10px; border: 0; }
+      .mobile-nav .nav-button i { font-size: 17px; }
+      .welcome-row { align-items: flex-start; }
+      .welcome-row .btn { padding: 10px; font-size: 12px; }
+      .motor-grid { grid-template-columns: 1fr; gap: 14px; }
+      .motor-image { height: 205px; }
+      .stats-grid { gap: 10px; }
+      .stat-card { padding: 14px; }
+      .stat-value { font-size: 19px; }
+      .section-heading { align-items: flex-start; }
+      .search-input { max-width: 155px; padding: 10px; }
+      .rental-row { grid-template-columns: 48px 1fr; gap: 10px; }
+      .rental-row img { width: 48px; height: 46px; }
+      .rental-actions { grid-column: 2; justify-content: flex-start; }
+      .history-card { grid-template-columns: 55px 1fr; gap: 10px; }
+      .history-card img { width: 55px; height: 55px; }
+      .history-card > div:last-child { grid-column: 2; }
+      .auth-box { padding: 30px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main id="authScreen" class="auth-screen">
+    <aside class="auth-art">
+      <div class="brand"><span class="brand-mark"><i class="fa-solid fa-motorcycle"></i></span> RentGo</div>
+      <div class="art-copy">
+        <h1>Jalan-jalan lebih bebas.</h1>
+        <p>Temukan motor yang pas, booking dengan mudah, dan nikmati perjalananmu bersama RentGo.</p>
+      </div>
+      <span class="small">Pilihan praktis untuk perjalananmu.</span>
+    </aside>
+    <section class="auth-box">
+      <div class="brand"><span class="brand-mark"><i class="fa-solid fa-motorcycle"></i></span> RentGo</div>
+      <h2 id="authTitle">Selamat datang 👋</h2>
+      <p class="muted" id="authSubtitle">Masuk untuk mulai menjelajah motor pilihan.</p>
+      <form id="authForm">
+        <div class="form-field hidden" id="nameField"><label for="authName">Nama lengkap</label><input id="authName" autocomplete="name" placeholder="Nama kamu"></div>
+        <div class="form-field"><label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" required placeholder="nama@email.com"></div>
+        <div class="form-field"><label for="authPassword">Password</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Minimal 6 karakter"></div>
+        <div class="form-field"><label for="authRole">Masuk sebagai</label><select id="authRole"><option value="buyer">Buyer</option><option value="seller">Seller</option></select></div>
+        <div id="sellerFields" class="hidden">
+          <div class="form-field"><label for="bankName">Nama bank / e-wallet</label><input id="bankName" placeholder="Contoh: Bank BCA"></div>
+          <div class="form-field"><label for="bankAccount">Nomor rekening</label><input id="bankAccount" inputmode="numeric" placeholder="Nomor rekening"></div>
+          <div class="form-field"><label for="bankHolder">Nama pemilik rekening</label><input id="bankHolder" placeholder="Sesuai buku rekening"></div>
+        </div>
+        <button class="btn btn-primary btn-block" id="authSubmit" type="submit">Masuk</button>
+      </form>
+      <p class="auth-switch muted" id="authSwitch">Belum punya akun? <button class="text-button" id="switchAuth" type="button">Daftar</button></p>
+      <div class="auth-footer">Demo: jacob@rental.com / 123456 (Seller) · meli@student.com / 123456 (Buyer)</div>
+    </section>
+  </main>
+
+  <div id="appShell" class="app-shell hidden">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand"><span class="brand-mark"><i class="fa-solid fa-motorcycle"></i></span> RentGo</div>
+        <div class="top-actions">
+          <button class="icon-button" id="notificationsButton" aria-label="Notifikasi"><i class="fa-regular fa-bell"></i></button>
+          <button class="icon-button" id="themeButton" aria-label="Toggle dark mode"><i class="fa-regular fa-moon"></i></button>
+          <div class="profile-chip"><span class="avatar" id="profileAvatar">R</span><span class="profile-label"><strong id="profileName">Pengguna</strong><br><span class="muted small" id="profileRole">Buyer</span></span></div>
+          <button class="icon-button" id="logoutButton" aria-label="Keluar"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+      </div>
+    </header>
+    <div id="notificationPanel" class="notification-panel hidden"></div>
+    <div class="page-wrap">
+      <section class="welcome-row">
+        <div><h1 id="welcomeTitle">Halo!</h1><p id="welcomeSubtitle">Siap untuk perjalanan berikutnya?</p></div>
+        <button id="welcomeAction" class="btn btn-primary hidden"><i class="fa-solid fa-plus"></i> Tambah Motor</button>
+      </section>
+      <nav id="desktopNav" class="desktop-nav"></nav>
+      <section id="pageContent"></section>
+    </div>
+    <nav id="mobileNav" class="mobile-nav"></nav>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    const state = {
+      token: null,
+      user: null,
+      users: [],
+      motors: [],
+      rentals: [],
+      chats: [],
+      tab: 'browse',
+      authMode: 'login',
+      search: '',
+      chatPartnerId: null,
+      chatMotorId: null,
+      chatRentalId: null,
+      toastTimer: null
+    };
+
+    const authScreen = document.getElementById('authScreen');
+    const appShell = document.getElementById('appShell');
+    const authRole = document.getElementById('authRole');
+    const sellerFields = document.getElementById('sellerFields');
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+    function money(value) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value) || 0);
+    }
+    function formatDate(value) {
+      return value ? new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    }
+    function toast(message) {
+      const element = document.getElementById('toast');
+      element.textContent = message;
+      element.classList.remove('hidden');
+      clearTimeout(state.toastTimer);
+      state.toastTimer = setTimeout(() => element.classList.add('hidden'), 3200);
+    }
+    async function api(path, options = {}) {
+      const headers = Object.assign({}, options.headers || {});
+      if (state.token) headers.Authorization = `Bearer ${state.token}`;
+      if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+      const response = await fetch(`${API_URL}${path}`, Object.assign({}, options, { headers }));
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Permintaan gagal. Coba lagi.');
+      return data;
+    }
+    async function syncData() {
+      const data = await api('/sync');
+      state.users = data.users || [];
+      state.motors = data.motors || [];
+      state.rentals = data.rentals || [];
+      state.chats = data.chats || [];
+      state.user = data.currentUser || state.user;
+      renderApp();
+    }
+    function openApp() {
+      authScreen.classList.add('hidden');
+      appShell.classList.remove('hidden');
+      document.getElementById('profileName').textContent = state.user.name;
+      document.getElementById('profileRole').textContent = state.user.role === 'seller' ? 'Seller' : 'Buyer';
+      document.getElementById('profileAvatar').textContent = state.user.name.slice(0, 1).toUpperCase();
+      document.getElementById('welcomeTitle').textContent = `Halo, ${state.user.name.split(' ')[0]}!`;
+      document.getElementById('welcomeSubtitle').textContent = state.user.role === 'seller'
+        ? 'Kelola motor dan pesanan rentalmu hari ini.'
+        : 'Siap untuk perjalanan berikutnya?';
+      renderApp();
+    }
+    function logout() {
+      state.token = null;
+      state.user = null;
+      state.users = [];
+      state.motors = [];
+      state.rentals = [];
+      state.chats = [];
+      state.tab = 'browse';
+      appShell.classList.add('hidden');
+      authScreen.classList.remove('hidden');
+    }
+    function navItems() {
+      return state.user.role === 'seller'
+        ? [
+          ['home', 'Home', 'fa-house'],
+          ['motors', 'Motor', 'fa-motorcycle'],
+          ['rentals', 'Rental', 'fa-clipboard-list'],
+          ['wallet', 'Dompet', 'fa-wallet']
+        ]
+        : [
+          ['browse', 'Cari Motor', 'fa-motorcycle'],
+          ['chats', 'Chat', 'fa-message'],
+          ['history', 'Histori', 'fa-clock-rotate-left']
+        ];
+    }
+    function renderNav() {
+      const markup = navItems().map(([id, label, icon]) =>
+        `<button class="nav-button ${state.tab === id ? 'active' : ''}" data-tab="${id}"><i class="fa-solid ${icon}"></i><span>${label}</span></button>`
+      ).join('');
+      document.getElementById('desktopNav').innerHTML = markup;
+      document.getElementById('mobileNav').innerHTML = markup;
+      document.querySelectorAll('[data-tab]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.tab = button.dataset.tab;
+          renderApp();
+        });
+      });
+    }
+    function emptyState(icon, text) {
+      return `<div class="empty-state"><i class="fa-solid ${icon}"></i><div>${escapeHtml(text)}</div></div>`;
+    }
+    function motorCard(motor) {
+      const available = Boolean(Number(motor.available));
+      const owned = state.user.role === 'seller' && motor.sellerId === state.user.id;
+      return `<article class="motor-card">
+        <img class="motor-image" src="${escapeHtml(motor.image)}" alt="${escapeHtml(motor.name)}" onerror="this.src='https://placehold.co/800x500/e7f6f3/087e72?text=RentGo'">
+        <div class="motor-content">
+          <div class="card-top"><div><h3>${escapeHtml(motor.name)}</h3><span class="muted small">${escapeHtml(motor.brand)} · ${escapeHtml(motor.type)}</span></div>
+            <span class="badge ${available ? 'green' : 'red'}"><i class="fa-solid fa-circle"></i>${available ? 'Tersedia' : 'Disewa'}</span>
+          </div>
+          <div class="motor-price">${money(motor.pricePerDay)} <span>/ hari</span></div>
+          <div class="motor-actions">
+            ${state.user.role === 'buyer'
+              ? `<button class="btn ${available ? 'btn-primary' : 'btn-plain'}" data-book="${escapeHtml(motor.id)}" ${available ? '' : 'disabled'}>Booking</button><button class="btn btn-soft" data-chat-motor="${escapeHtml(motor.id)}" title="Chat Seller"><i class="fa-regular fa-message"></i></button>`
+              : owned ? `<button class="btn btn-plain" data-edit-motor="${escapeHtml(motor.id)}">Edit</button><button class="btn btn-danger" data-delete-motor="${escapeHtml(motor.id)}">Hapus</button>` : `<span class="muted small">Motor Seller lain</span>`}
+          </div>
+        </div>
+      </article>`;
+    }
+    function renderBrowse() {
+      const filtered = state.motors.filter((motor) => `${motor.name} ${motor.brand} ${motor.type}`.toLowerCase().includes(state.search.toLowerCase()));
+      return `<div class="section-heading"><div><h2>Temukan motor pilihan</h2><span class="muted small">Pilih motor untuk perjalananmu</span></div>
+        <input id="motorSearch" class="search-input" placeholder="Cari motor..." value="${escapeHtml(state.search)}"></div>
+        ${filtered.length ? `<div class="motor-grid">${filtered.map(motorCard).join('')}</div>` : emptyState('fa-motorcycle', 'Motor tidak ditemukan.')}`;
+    }
+    function statCard(icon, label, value) {
+      return `<article class="stat-card"><div class="stat-icon"><i class="fa-solid ${icon}"></i></div><span class="stat-label">${label}</span><strong class="stat-value">${value}</strong></article>`;
+    }
+    function formatDuration(seconds) {
+      const remaining = Math.max(0, Number(seconds) || 0);
+      const days = Math.floor(remaining / 86400);
+      const hours = Math.floor((remaining % 86400) / 3600);
+      const minutes = Math.floor((remaining % 3600) / 60);
+      const secs = remaining % 60;
+      return `${days}h ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    function remainingSeconds(rental) {
+      const elapsed = Math.floor((Date.now() - new Date(rental.startTime).getTime()) / 1000);
+      return Math.max(0, Number(rental.durationSeconds) - elapsed);
+    }
+    function rentalRow(rental) {
+      const sellerActions = rental.status === 'pending_payment' && rental.paymentStatus === 'submitted'
+        ? `<button class="btn btn-soft" data-view-proof="${escapeHtml(rental.id)}">Lihat Bukti</button>`
+        : rental.status === 'booked'
+          ? `<button class="btn btn-primary" data-pickup="${escapeHtml(rental.id)}">Konfirmasi Motor Diambil</button>`
+          : rental.status === 'active'
+            ? `<span class="timer" data-timer="${escapeHtml(rental.id)}">${formatDuration(remainingSeconds(rental))}</span><button class="btn btn-soft" data-complete="${escapeHtml(rental.id)}">Selesaikan</button>`
+            : '';
+      const paymentNote = state.user.role === 'seller' && rental.status === 'pending_payment'
+        ? `<p>${rental.paymentStatus === 'submitted' ? 'Bukti menunggu verifikasi' : rental.paymentStatus === 'rejected' ? 'Bukti ditolak · menunggu bukti baru' : 'Menunggu pembayaran'}</p>`
+        : '';
+      return `<div class="rental-row">
+        <img src="${escapeHtml(rental.motorImage || '')}" alt="">
+        <div><h4>${escapeHtml(rental.motorName)}</h4><p>${escapeHtml(state.user.role === 'seller' ? `Buyer: ${rental.buyerName}` : `Seller: ${rental.sellerName}`)} · ${rental.days} hari · ${money(rental.totalPrice)}</p><p>${formatDate(rental.createdAt)} · <span class="badge neutral">${escapeHtml(rental.status.replaceAll('_', ' '))}</span></p>${paymentNote}</div>
+        <div class="rental-actions">${sellerActions}${state.user.role === 'seller' && rental.status === 'booked' ? `<button class="btn btn-soft" data-chat-rental="${escapeHtml(rental.id)}">Chat</button>` : ''}</div>
+      </div>`;
+    }
+    function renderHome() {
+      const myMotors = state.motors.filter((motor) => motor.sellerId === state.user.id);
+      const active = state.rentals.filter((rental) => rental.status === 'active').length;
+      const available = myMotors.filter((motor) => Number(motor.available)).length;
+      const income = Number(state.user.balance) || 0;
+      const pending = state.rentals.filter((rental) =>
+        ['booked', 'active'].includes(rental.status) ||
+        (rental.status === 'pending_payment' && rental.paymentStatus === 'submitted')
+      );
+      return `<div class="stats-grid">
+          ${statCard('fa-motorcycle', 'Total Motor', myMotors.length)}
+          ${statCard('fa-circle-check', 'Tersedia', available)}
+          ${statCard('fa-key', 'Rental Aktif', active)}
+          ${statCard('fa-wallet', 'Pendapatan Bersih', money(income))}
+        </div>
+        <div class="section-heading"><div><h2>Pesanan terbaru</h2><span class="muted small">Pantau proses rental motor</span></div><button class="btn btn-soft" data-goto="rentals">Lihat semua</button></div>
+        <div class="panel"><div class="rental-list">${pending.length ? pending.slice(0, 5).map(rentalRow).join('') : emptyState('fa-clipboard-check', 'Belum ada pesanan aktif.')}</div></div>`;
+    }
+    function renderMotors() {
+      const mine = state.motors.filter((motor) => motor.sellerId === state.user.id);
+      return `<div class="section-heading"><div><h2>Motor saya</h2><span class="muted small">Atur daftar motor yang disewakan</span></div><button class="btn btn-primary" data-add-motor><i class="fa-solid fa-plus"></i> Tambah Motor</button></div>
+        ${mine.length ? `<div class="motor-grid">${mine.map(motorCard).join('')}</div>` : emptyState('fa-motorcycle', 'Belum ada motor. Tambahkan motor pertamamu!')}`;
+    }
+    function renderRentals() {
+      const list = state.rentals.filter((rental) => rental.status !== 'completed' && rental.status !== 'cancelled');
+      return `<div class="section-heading"><div><h2>Pesanan rental</h2><span class="muted small">Pesanan yang perlu ditindaklanjuti</span></div></div>
+        <div class="panel"><div class="rental-list">${list.length ? list.map(rentalRow).join('') : emptyState('fa-clipboard-list', 'Belum ada pesanan rental.')}</div></div>`;
+    }
+    function renderWallet() {
+      const user = state.user;
+      const completed = state.rentals.filter((rental) => rental.status === 'completed');
+      return `<div class="panel wallet-card"><span class="muted">Saldo tersedia</span><div class="wallet-balance">${money(user.balance)}</div><button class="btn btn-plain" data-withdraw><i class="fa-solid fa-arrow-up-from-bracket"></i> Tarik Saldo</button></div>
+        <div class="section-heading"><div><h2>Rekening pencairan</h2><span class="muted small">Informasi rekening Seller</span></div></div>
+        <div class="panel bank-info"><strong>${escapeHtml(user.bankName || 'Rekening belum diatur')}</strong><p class="muted">${escapeHtml(user.bankHolder || '—')} · ${escapeHtml(user.bankAccount || '—')}</p><span class="small muted">Saldo rental yang selesai ditambahkan setelah komisi platform 10%.</span></div>
+        <div class="section-heading"><div><h2>Ringkasan pendapatan</h2></div></div>
+        <div class="panel">${completed.length ? completed.map((rental) => `<div class="rental-row"><img src="${escapeHtml(rental.motorImage || '')}" alt=""><div><h4>${escapeHtml(rental.motorName)}</h4><p>${formatDate(rental.createdAt)} · Komisi ${money(rental.commission)}</p></div><strong>${money(rental.sellerNet)}</strong></div>`).join('') : emptyState('fa-coins', 'Pendapatan akan muncul setelah rental selesai.')}</div>`;
+    }
+    function chatPartner(chat) {
+      return chat.senderId === state.user.id ? chat.receiverId : chat.senderId;
+    }
+    function renderChats() {
+      const groups = new Map();
+      state.chats.forEach((chat) => {
+        const partner = chatPartner(chat);
+        const existing = groups.get(partner) || [];
+        existing.push(chat);
+        groups.set(partner, existing);
+      });
+      const rows = Array.from(groups.entries()).map(([partnerId, messages]) => {
+        const person = state.users.find((user) => user.id === partnerId);
+        const last = messages[messages.length - 1];
+        if (!person) return '';
+        return `<button class="chat-row" data-open-chat="${escapeHtml(partnerId)}"><span class="avatar">${escapeHtml(person.name.slice(0, 1).toUpperCase())}</span><span class="chat-row-copy"><strong>${escapeHtml(person.name)}</strong><span>${escapeHtml(last.message || '📷 Foto')}</span></span><span class="muted small">${new Date(last.createdAt).toLocaleDateString('id-ID')}</span></button>`;
+      }).join('');
+      return `<div class="section-heading"><div><h2>Percakapan</h2><span class="muted small">Hubungi Buyer atau Seller</span></div></div>${rows ? `<div class="chat-list">${rows}</div>` : emptyState('fa-message', 'Belum ada percakapan. Mulai chat dari kartu motor.')}`;
+    }
+    function renderHistory() {
+      const history = state.rentals;
+      return `<div class="section-heading"><div><h2>Histori transaksi</h2><span class="muted small">Semua pesanan rentalmu</span></div></div>${history.length ? `<div class="history-list">${history.map((rental) => {
+        const paymentLabel = rental.paymentStatus === 'submitted' ? 'Menunggu Verifikasi' : rental.paymentStatus === 'rejected' ? 'Bukti Ditolak' : rental.status.replaceAll('_', ' ');
+        const canPay = rental.status === 'pending_payment' && rental.paymentStatus !== 'submitted';
+        return `<article class="history-card"><img src="${escapeHtml(rental.motorImage || '')}" alt=""><div><h3>${escapeHtml(rental.motorName)}</h3><p>${formatDate(rental.createdAt)} · ${rental.days} hari · ${money(rental.totalPrice)}</p></div><div><span class="badge ${rental.status === 'completed' || rental.paymentStatus === 'paid' ? 'green' : rental.status === 'pending_payment' ? 'red' : 'neutral'}">${escapeHtml(paymentLabel)}</span>${canPay ? `<button class="btn btn-soft small" data-resume-payment="${escapeHtml(rental.id)}">Bayar / Kirim Bukti</button><button class="btn btn-plain small" data-cancel-rental="${escapeHtml(rental.id)}">Batalkan</button>` : ''}</div></article>`;
+      }).join('')}</div>` : emptyState('fa-clock-rotate-left', 'Belum ada transaksi.')}`;
+    }
+    function renderApp() {
+      if (!state.user) return;
+      renderNav();
+      document.getElementById('welcomeAction').classList.toggle('hidden', state.user.role !== 'seller');
+      const renderers = {
+        browse: renderBrowse, chats: renderChats, history: renderHistory,
+        home: renderHome, motors: renderMotors, rentals: renderRentals, wallet: renderWallet
+      };
+      document.getElementById('pageContent').innerHTML = renderers[state.tab]();
+      bindPageActions();
+      updateTimers();
+    }
+    function bindPageActions() {
+      const search = document.getElementById('motorSearch');
+      if (search) search.addEventListener('input', () => {
+        state.search = search.value;
+        const cursor = search.selectionStart;
+        document.getElementById('pageContent').innerHTML = renderBrowse();
+        const nextSearch = document.getElementById('motorSearch');
+        nextSearch.focus();
+        nextSearch.setSelectionRange(cursor, cursor);
+        bindPageActions();
+      });
+      document.querySelectorAll('[data-book]').forEach((button) => button.addEventListener('click', () => openBooking(button.dataset.book)));
+      document.querySelectorAll('[data-chat-motor]').forEach((button) => button.addEventListener('click', () => {
+        const motor = state.motors.find((item) => item.id === button.dataset.chatMotor);
+        if (motor) openChat(motor.sellerId, motor.id);
+      }));
+      document.querySelectorAll('[data-add-motor]').forEach((button) => button.addEventListener('click', () => openMotorForm()));
+      document.querySelectorAll('[data-edit-motor]').forEach((button) => button.addEventListener('click', () => {
+        const motor = state.motors.find((item) => item.id === button.dataset.editMotor);
+        if (motor) openMotorForm(motor);
+      }));
+      document.querySelectorAll('[data-delete-motor]').forEach((button) => button.addEventListener('click', () => deleteMotor(button.dataset.deleteMotor)));
+      document.querySelectorAll('[data-pickup]').forEach((button) => button.addEventListener('click', () => updateRental(button.dataset.pickup, 'pickup')));
+      document.querySelectorAll('[data-complete]').forEach((button) => button.addEventListener('click', () => updateRental(button.dataset.complete, 'complete')));
+      document.querySelectorAll('[data-chat-rental]').forEach((button) => button.addEventListener('click', () => {
+        const rental = state.rentals.find((item) => item.id === button.dataset.chatRental);
+        if (rental) openChat(rental.buyerId, rental.motorId, rental.id);
+      }));
+      document.querySelectorAll('[data-open-chat]').forEach((button) => button.addEventListener('click', () => openChat(button.dataset.openChat)));
+      document.querySelectorAll('[data-resume-payment]').forEach((button) => button.addEventListener('click', () => openPayment(button.dataset.resumePayment)));
+      document.querySelectorAll('[data-cancel-rental]').forEach((button) => button.addEventListener('click', () => cancelRental(button.dataset.cancelRental)));
+      document.querySelectorAll('[data-view-proof]').forEach((button) => button.addEventListener('click', () => openPaymentProof(button.dataset.viewProof)));
+      document.querySelectorAll('[data-review-payment]').forEach((button) => button.addEventListener('click', () =>
+        reviewPayment(button.dataset.reviewPayment, button.dataset.approved === 'true')
+      ));
+      document.querySelectorAll('[data-goto]').forEach((button) => button.addEventListener('click', () => {
+        state.tab = button.dataset.goto;
+        renderApp();
+      }));
+      document.querySelectorAll('[data-withdraw]').forEach((button) => button.addEventListener('click', () => {
+        toast(Number(state.user.balance) > 0
+          ? 'Permintaan tarik saldo dicatat untuk demo. Hubungi admin untuk pencairan.'
+          : 'Saldo belum tersedia untuk ditarik.');
+      }));
+    }
+    function showModal(content, wide = false) {
+      document.getElementById('modalRoot').innerHTML = `<div class="modal-backdrop" data-backdrop><section class="modal ${wide ? 'modal-wide' : ''}" role="dialog" aria-modal="true">${content}</section></div>`;
+      document.querySelector('[data-backdrop]').addEventListener('click', (event) => {
+        if (event.target.matches('[data-backdrop]')) closeModal();
+      });
+      document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', closeModal));
+    }
+    function closeModal() {
+      document.getElementById('modalRoot').innerHTML = '';
+      state.chatPartnerId = null;
+      state.chatMotorId = null;
+      state.chatRentalId = null;
+    }
+    function openBooking(motorId) {
+      const motor = state.motors.find((item) => item.id === motorId);
+      if (!motor) return;
+      showModal(`<header class="modal-header"><div><h2>Detail booking</h2><span class="muted small">Pastikan detail pesananmu benar</span></div><button class="modal-close" data-close-modal aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button></header>
+        <img class="modal-motor-img" src="${escapeHtml(motor.image)}" alt="${escapeHtml(motor.name)}">
+        <h3>${escapeHtml(motor.name)}</h3><p class="muted">${escapeHtml(motor.description)}</p>
+        <div class="form-field"><label for="rentalDays">Durasi rental (hari)</label><input id="rentalDays" type="number" min="1" max="30" value="1"></div>
+        <div class="price-summary"><span>Total pembayaran</span><span id="bookingTotal">${money(motor.pricePerDay)}</span></div>
+        <div class="modal-footer"><button class="btn btn-plain" data-close-modal>Batal</button><button id="continuePayment" class="btn btn-primary">Lanjut Pembayaran</button></div>`);
+      const daysInput = document.getElementById('rentalDays');
+      daysInput.addEventListener('input', () => {
+        document.getElementById('bookingTotal').textContent = money(motor.pricePerDay * Math.max(1, Number(daysInput.value) || 1));
+      });
+      document.getElementById('continuePayment').addEventListener('click', async () => {
+        const days = Number(daysInput.value);
+        if (!Number.isInteger(days) || days < 1 || days > 30) return toast('Durasi harus antara 1–30 hari.');
+        try {
+          const result = await api('/rentals', { method: 'POST', body: JSON.stringify({ motorId, days }) });
+          await syncData();
+          openPayment(result.rental.id);
+        } catch (error) { toast(error.message); }
+      });
+    }
+    function openPayment(rentalId) {
+      const rental = state.rentals.find((item) => item.id === rentalId);
+      if (!rental) return;
+      const proofSubmitted = rental.paymentStatus === 'submitted';
+      showModal(`<header class="modal-header"><div><h2>Bayar dengan QRIS</h2><span class="muted small">Scan QR ini dari aplikasi bank atau e-wallet</span></div><button class="modal-close" data-close-modal aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button></header>
+        <div class="center"><div class="qr-box"><img src="./assets/qris-rentgo.jpeg" alt="QRIS RentGo Service"></div>
+          <a class="btn btn-soft small" href="./assets/qris-rentgo.jpeg" download="RentGo-QRIS.jpeg"><i class="fa-solid fa-download"></i> Unduh QRIS</a>
+          <p>Rental motor <strong>${escapeHtml(rental.motorName)}</strong></p><h2>${money(rental.totalPrice)}</h2>
+          <p class="muted small">QRIS ini statis. Masukkan nominal <strong>${money(rental.totalPrice)}</strong> secara manual di aplikasi pembayaran. Pastikan nama merchant yang muncul sesuai sebelum membayar.</p>
+        </div>
+        ${proofSubmitted
+          ? '<div class="empty-state"><i class="fa-solid fa-hourglass-half"></i><div>Bukti pembayaran sudah dikirim. Pesanan menunggu Seller memeriksa mutasi dan mengonfirmasi pembayaran.</div></div>'
+          : `<form id="paymentProofForm">
+              <div class="form-field"><label for="paymentProof">Unggah screenshot bukti pembayaran</label><input id="paymentProof" type="file" accept="image/jpeg,image/png,image/webp" required></div>
+              <p class="muted small">${rental.paymentStatus === 'rejected' ? 'Bukti sebelumnya ditolak. Pastikan pembayaran berhasil dan screenshot terlihat jelas.' : 'Setelah berhasil membayar, unggah bukti agar Seller dapat memeriksanya.'}</p>
+              <div class="modal-footer"><button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Kirim Bukti Pembayaran</button></div>
+            </form>`}`);
+      const form = document.getElementById('paymentProofForm');
+      if (!form) return;
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const fileInput = document.getElementById('paymentProof');
+        const file = fileInput.files[0];
+        if (!file) return toast('Pilih screenshot bukti pembayaran terlebih dahulu.');
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return toast('Bukti pembayaran harus berupa JPEG, PNG, atau WebP.');
+        if (file.size > 4 * 1024 * 1024) return toast('Ukuran bukti pembayaran maksimal 4 MB.');
+        try {
+          const proofData = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Bukti pembayaran gagal dibaca.'));
+            reader.readAsDataURL(file);
+          });
+          await api(`/rentals/${encodeURIComponent(rentalId)}/payment-proof`, {
+            method: 'POST',
+            body: JSON.stringify({ proofData, paidAmount: rental.totalPrice })
+          });
+          await syncData();
+          closeModal();
+          toast('Bukti dikirim. Pesanan menunggu verifikasi Seller.');
+        } catch (error) { toast(error.message); }
+      });
+    }
+    function openPaymentProof(rentalId) {
+      const rental = state.rentals.find((item) => item.id === rentalId);
+      if (!rental || !rental.paymentProofData) return toast('Bukti pembayaran tidak tersedia.');
+      showModal(`<header class="modal-header"><div><h2>Verifikasi Pembayaran</h2><span class="muted small">${escapeHtml(rental.buyerName)} · ${money(rental.totalPrice)}</span></div><button class="modal-close" data-close-modal aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button></header>
+        <p>Periksa bukti ini dan cocokkan nominal serta mutasinya di rekening/merchant QRIS sebelum mengonfirmasi.</p>
+        <img class="modal-motor-img" src="${escapeHtml(rental.paymentProofData)}" alt="Bukti pembayaran Buyer">
+        <p class="muted small">Dikirim ${formatDate(rental.paymentSubmittedAt)}</p>
+        <div class="modal-footer"><button class="btn btn-danger" data-review-payment="${escapeHtml(rental.id)}" data-approved="false">Tolak Bukti</button><button class="btn btn-primary" data-review-payment="${escapeHtml(rental.id)}" data-approved="true">Pembayaran Terverifikasi</button></div>`);
+      document.querySelectorAll('[data-review-payment]').forEach((button) => button.addEventListener('click', () =>
+        reviewPayment(button.dataset.reviewPayment, button.dataset.approved === 'true')
+      ));
+    }
+    async function reviewPayment(rentalId, approved) {
+      const confirmation = approved
+        ? 'Pastikan dana benar-benar masuk di rekening/merchant QRIS. Konfirmasi pembayaran ini?'
+        : 'Tolak bukti ini? Buyer dapat mengirim ulang bukti pembayaran.';
+      if (!confirm(confirmation)) return;
+      try {
+        await api(`/rentals/${encodeURIComponent(rentalId)}/payment-review`, {
+          method: 'PUT',
+          body: JSON.stringify({ approved })
+        });
+        await syncData();
+        closeModal();
+        toast(approved ? 'Pembayaran diverifikasi dan pesanan dikonfirmasi.' : 'Bukti ditolak. Buyer dapat mengirim bukti baru.');
+      } catch (error) { toast(error.message); }
+    }
+    async function cancelRental(rentalId) {
+      if (!confirm('Batalkan booking yang belum dibayar? Jika sudah membayar, jangan batalkan; kirim bukti pembayaran agar dapat diverifikasi.')) return;
+      try {
+        await api(`/rentals/${encodeURIComponent(rentalId)}/cancel`, { method: 'POST' });
+        await syncData();
+        toast('Booking dibatalkan.');
+      } catch (error) { toast(error.message); }
+    }
+    function openMotorForm(motor) {
+      const editing = Boolean(motor);
+      showModal(`<header class="modal-header"><div><h2>${editing ? 'Edit Motor' : 'Tambah Motor'}</h2><span class="muted small">Lengkapi informasi motor rental</span></div><button class="modal-close" data-close-modal aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button></header>
+        <form id="motorForm">
+          <div class="form-field"><label for="motorName">Nama motor</label><input id="motorName" required value="${escapeHtml(motor ? motor.name : '')}" placeholder="Contoh: Honda Vario 160"></div>
+          <div class="form-field"><label for="motorBrand">Merek</label><input id="motorBrand" required value="${escapeHtml(motor ? motor.brand : '')}"></div>
+          <div class="form-field"><label for="motorType">Tipe</label><select id="motorType"><option ${motor && motor.type === 'Matic' ? 'selected' : ''}>Matic</option><option ${motor && motor.type === 'Sport' ? 'selected' : ''}>Sport</option><option ${motor && motor.type === 'Bebek' ? 'selected' : ''}>Bebek</option></select></div>
+          <div class="form-field"><label for="motorPrice">Harga per hari (Rp)</label><input id="motorPrice" type="number" min="1" required value="${motor ? Number(motor.pricePerDay) : ''}"></div>
+          <div class="form-field"><label for="motorImage">URL gambar</label><input id="motorImage" type="url" required value="${escapeHtml(motor ? motor.image : '')}" placeholder="https://..."></div>
+          <div class="form-field"><label for="motorDescription">Deskripsi</label><textarea id="motorDescription" rows="3" required>${escapeHtml(motor ? motor.description : '')}</textarea></div>
+          <div class="modal-footer"><button type="button" class="btn btn-plain" data-close-modal>Batal</button><button class="btn btn-primary" type="submit">${editing ? 'Simpan Perubahan' : 'Tambah Motor'}</button></div>
+        </form>`);
+      document.getElementById('motorForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const body = {
+          name: document.getElementById('motorName').value.trim(),
+          brand: document.getElementById('motorBrand').value.trim(),
+          type: document.getElementById('motorType').value,
+          pricePerDay: Number(document.getElementById('motorPrice').value),
+          image: document.getElementById('motorImage').value.trim(),
+          description: document.getElementById('motorDescription').value.trim()
+        };
+        try {
+          await api(editing ? `/motors/${encodeURIComponent(motor.id)}` : '/motors', {
+            method: editing ? 'PUT' : 'POST',
+            body: JSON.stringify(body)
+          });
+          await syncData();
+          closeModal();
+          toast(editing ? 'Data motor diperbarui.' : 'Motor berhasil ditambahkan.');
+        } catch (error) { toast(error.message); }
+      });
+    }
+    async function deleteMotor(motorId) {
+      if (!confirm('Hapus motor ini dari daftar?')) return;
+      try {
+        await api(`/motors/${encodeURIComponent(motorId)}`, { method: 'DELETE' });
+        await syncData();
+        toast('Motor berhasil dihapus.');
+      } catch (error) { toast(error.message); }
+    }
+    async function updateRental(rentalId, action) {
+      const prompt = action === 'pickup'
+        ? 'Konfirmasi motor sudah diambil Buyer? Timer rental akan dimulai.'
+        : 'Tandai rental ini selesai dan tambahkan pendapatan bersih ke saldo?';
+      if (!confirm(prompt)) return;
+      try {
+        await api(`/rentals/${encodeURIComponent(rentalId)}/${action}`, { method: 'PUT' });
+        await syncData();
+        toast(action === 'pickup' ? 'Pengambilan dikonfirmasi. Timer rental dimulai.' : 'Rental selesai. Pendapatan bersih ditambahkan ke saldo.');
+      } catch (error) { toast(error.message); }
+    }
+    function conversationMessages() {
+      return state.chats.filter((chat) =>
+        (chat.senderId === state.user.id && chat.receiverId === state.chatPartnerId) ||
+        (chat.senderId === state.chatPartnerId && chat.receiverId === state.user.id)
+      );
+    }
+    function openChat(partnerId, motorId, rentalId) {
+      const partner = state.users.find((user) => user.id === partnerId);
+      if (!partner) return toast('Pengguna tidak ditemukan.');
+      state.chatPartnerId = partnerId;
+      state.chatMotorId = motorId || null;
+      state.chatRentalId = rentalId || null;
+      const messages = conversationMessages();
+      showModal(`<header class="modal-header"><div><h2>Chat dengan ${escapeHtml(partner.name)}</h2><span class="muted small">Percakapan tersimpan di RentGo</span></div><button class="modal-close" data-close-modal aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button></header>
+        <div class="chat-messages" id="chatMessages">${messages.map((chat) => `<div class="message ${chat.senderId === state.user.id ? 'mine' : ''}">${chat.message ? escapeHtml(chat.message) : ''}${chat.imageData ? `<img src="${escapeHtml(chat.imageData)}" alt="Foto chat">` : ''}<time>${new Date(chat.createdAt).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' })}</time></div>`).join('') || '<div class="muted center small">Belum ada pesan. Mulai percakapan sekarang.</div>'}</div>
+        <form class="chat-compose" id="chatForm"><label class="upload-button" title="Kirim foto"><i class="fa-regular fa-image"></i><input id="chatImage" type="file" accept="image/*" class="hidden"></label><input id="chatText" type="text" maxlength="1500" placeholder="Tulis pesan..." autocomplete="off"><button class="btn btn-primary" type="submit" aria-label="Kirim"><i class="fa-solid fa-paper-plane"></i></button></form>
+        <div class="small muted" id="selectedFile"></div>`, true);
+      const messagePane = document.getElementById('chatMessages');
+      messagePane.scrollTop = messagePane.scrollHeight;
+      document.getElementById('chatForm').addEventListener('submit', sendChat);
+      document.getElementById('chatImage').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file && file.size > 4 * 1024 * 1024) {
+          event.target.value = '';
+          document.getElementById('selectedFile').textContent = 'Ukuran foto maksimal 4 MB.';
+          return;
+        }
+        document.getElementById('selectedFile').textContent = file ? file.name : '';
+      });
+    }
+    async function sendChat(event) {
+      event.preventDefault();
+      const message = document.getElementById('chatText').value.trim();
+      const file = document.getElementById('chatImage').files[0];
+      if (!message && !file) return;
+      const partnerId = state.chatPartnerId;
+      const motorId = state.chatMotorId;
+      const rentalId = state.chatRentalId;
+      try {
+        const imageData = file ? await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('Foto gagal dibaca.'));
+          reader.readAsDataURL(file);
+        }) : null;
+        await api('/chats', {
+          method: 'POST',
+          body: JSON.stringify({ receiverId: partnerId, motorId, rentalId, message, imageData })
+        });
+        await syncData();
+        openChat(partnerId, motorId, rentalId);
+      } catch (error) { toast(error.message); }
+    }
+    function updateTimers() {
+      document.querySelectorAll('[data-timer]').forEach((element) => {
+        const rental = state.rentals.find((item) => item.id === element.dataset.timer);
+        if (rental) element.textContent = formatDuration(remainingSeconds(rental));
+      });
+    }
+    function renderNotifications() {
+      const notifications = state.user.role === 'seller'
+        ? state.rentals.filter((rental) =>
+          rental.status === 'booked' || (rental.status === 'pending_payment' && rental.paymentStatus === 'submitted')
+        ).length
+        : state.rentals.filter((rental) => rental.status === 'pending_payment').length;
+      const panel = document.getElementById('notificationPanel');
+      panel.innerHTML = `<strong>Notifikasi</strong><p class="muted">${notifications ? `Ada ${notifications} pesanan yang perlu diperhatikan.` : 'Belum ada notifikasi baru.'}</p>`;
+      panel.classList.toggle('hidden');
+    }
+
+    document.getElementById('authRole').addEventListener('change', () => {
+      sellerFields.classList.toggle('hidden', authRole.value !== 'seller' || state.authMode !== 'register');
+    });
+    document.getElementById('authSwitch').addEventListener('click', (event) => {
+      if (!event.target.closest('#switchAuth')) return;
+      state.authMode = state.authMode === 'login' ? 'register' : 'login';
+      const registering = state.authMode === 'register';
+      document.getElementById('authTitle').textContent = registering ? 'Buat akun RentGo' : 'Selamat datang 👋';
+      document.getElementById('authSubtitle').textContent = registering ? 'Daftar untuk mulai menggunakan RentGo.' : 'Masuk untuk mulai menjelajah motor pilihan.';
+      document.getElementById('nameField').classList.toggle('hidden', !registering);
+      document.getElementById('authName').required = registering;
+      document.getElementById('authPassword').autocomplete = registering ? 'new-password' : 'current-password';
+      document.getElementById('authSubmit').textContent = registering ? 'Daftar Sekarang' : 'Masuk';
+      document.getElementById('authSwitch').innerHTML = registering
+        ? 'Sudah punya akun? <button class="text-button" id="switchAuth" type="button">Masuk</button>'
+        : 'Belum punya akun? <button class="text-button" id="switchAuth" type="button">Daftar</button>';
+      sellerFields.classList.toggle('hidden', !registering || authRole.value !== 'seller');
+    });
+    document.getElementById('authForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const registering = state.authMode === 'register';
+      const body = {
+        email: document.getElementById('authEmail').value.trim(),
+        password: document.getElementById('authPassword').value,
+        role: authRole.value
+      };
+      if (registering) {
+        body.name = document.getElementById('authName').value.trim();
+        if (body.role === 'seller') {
+          body.bankName = document.getElementById('bankName').value.trim();
+          body.bankAccount = document.getElementById('bankAccount').value.trim();
+          body.bankHolder = document.getElementById('bankHolder').value.trim();
+        }
+      }
+      try {
+        const result = await api(registering ? '/register' : '/login', { method: 'POST', body: JSON.stringify(body) });
+        state.token = result.token;
+        state.user = result.user;
+        state.tab = state.user.role === 'seller' ? 'home' : 'browse';
+        await syncData();
+        openApp();
+      } catch (error) { toast(error.message); }
+    });
+    document.getElementById('logoutButton').addEventListener('click', logout);
+    document.getElementById('themeButton').addEventListener('click', () => {
+      const dark = document.documentElement.dataset.theme !== 'dark';
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      document.getElementById('themeButton').innerHTML = `<i class="fa-regular ${dark ? 'fa-sun' : 'fa-moon'}"></i>`;
+    });
+    document.getElementById('notificationsButton').addEventListener('click', renderNotifications);
+    document.getElementById('welcomeAction').addEventListener('click', () => openMotorForm());
+    setInterval(updateTimers, 1000);
+  </script>
+</body>
+</html>
